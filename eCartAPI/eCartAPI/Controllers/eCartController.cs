@@ -121,5 +121,31 @@ namespace eCartAPI.Controllers
 
         }
 
+        [HttpGet]
+        [Route("GetProductList/{categoryId}")]
+        public IActionResult GetProductList(long categoryId)
+        {
+            var items = _eCartService.GetProductList(categoryId);
+            if (items != null)
+            {
+                return Ok(items);
+            }
+            return BadRequest();
+
+        }
+
+        [HttpGet]
+        [Route("GetProductDetail/{productId}/{customerId}")]
+        public IActionResult GetProductDetail(long productId, long customerId)
+        {
+            var items = _eCartService.GetProductDetail(productId, customerId);
+            if (items != null)
+            {
+                return Ok(items);
+            }
+            return BadRequest();
+
+        }
+
     }
 }
