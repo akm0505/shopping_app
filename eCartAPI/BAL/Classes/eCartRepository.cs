@@ -14,10 +14,6 @@ namespace DAL.Repositories
     public class eCartRepository
     {
         private readonly IConfiguration _configuration;
-        //var connString = configuration.GetConnectionString("ProductsDb");
-        //public readonly IC
-        //public static string ConnString = "Server=sql.bsite.net\\MSSQL2016;Database=akm0505_mahakal;User Id=akm0505_mahakal;Password=Abhishek@123;";
-
         public eCartRepository(IConfiguration configuration)
         {
             _configuration = configuration;
