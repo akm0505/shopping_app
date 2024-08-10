@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using System.Data;
 
 
 namespace BAL.Classes
@@ -19,10 +20,23 @@ namespace BAL.Classes
         {
             _configuration = configuration;
         }
-        public CategoryList GetCategoryList(string type = "")
+        //public CategoryList GetCategoryList(string type = "")
+        //{
+        //    eCartRepository oRepo = new eCartRepository(_configuration);
+        //    var items = oRepo.GetCategoryList(type);
+
+        //    if (items != null)
+        //    {
+        //        return items;
+        //        //return Mapper.Map<CategoryList>(items);
+        //    }
+        //    return null;
+        //}
+
+        public DataSet GetCategoryList(long shopId)
         {
             eCartRepository oRepo = new eCartRepository(_configuration);
-            var items = oRepo.GetCategoryList(type);
+            var items = oRepo.GetCategoryList(shopId);
 
             if (items != null)
             {
@@ -32,7 +46,19 @@ namespace BAL.Classes
             return null;
         }
 
-        public ShopDetail GetInitialSetup(long shopId)
+        //public ShopDetail GetInitialSetup(long shopId)
+        //{
+        //    eCartRepository oRepo = new eCartRepository(_configuration);
+        //    var items = oRepo.GetInitialSetup(shopId);
+
+        //    if (items != null)
+        //    {
+        //        return items;
+        //    }
+        //    return null;
+        //}
+
+        public DataSet GetInitialSetup(long shopId)
         {
             eCartRepository oRepo = new eCartRepository(_configuration);
             var items = oRepo.GetInitialSetup(shopId);
@@ -44,10 +70,10 @@ namespace BAL.Classes
             return null;
         }
 
-        public ProductDetail GetProductDetail(long productId, long customerId)
+        public DataSet GetProductDetail(long productId, long customerId)
         {
             eCartRepository oRepo = new eCartRepository(_configuration);
-            var items = oRepo.GetProductDetail(productId,customerId);
+            var items = oRepo.GetProductDetail(productId, customerId);
 
             if (items != null)
             {
@@ -56,7 +82,31 @@ namespace BAL.Classes
             return null;
         }
 
-        public ProductList GetProductList(long categoryId)
+        //public ProductDetail GetProductDetail(long productId, long customerId)
+        //{
+        //    eCartRepository oRepo = new eCartRepository(_configuration);
+        //    var items = oRepo.GetProductDetail(productId,customerId);
+
+        //    if (items != null)
+        //    {
+        //        return items;
+        //    }
+        //    return null;
+        //}
+
+        //public ProductList GetProductList(long categoryId)
+        //{
+        //    eCartRepository oRepo = new eCartRepository(_configuration);
+        //    var items = oRepo.GetProductList(categoryId);
+
+        //    if (items != null)
+        //    {
+        //        return items;
+        //    }
+        //    return null;
+        //}
+
+        public DataSet GetProductList(long categoryId)
         {
             eCartRepository oRepo = new eCartRepository(_configuration);
             var items = oRepo.GetProductList(categoryId);
@@ -68,10 +118,23 @@ namespace BAL.Classes
             return null;
         }
 
-        public UserDetail GetUserDetail(string mobileNumber, int userRoleId)
+        //public CustomerDetail GetCustomerDetail(string customerLoginId, long shopId, int CustomerRoleId)
+        //{
+        //    eCartRepository oRepo = new eCartRepository(_configuration);
+        //    var items = oRepo.GetCustomerDetail(customerLoginId , shopId, CustomerRoleId);
+
+        //    if (items != null)
+        //    {
+        //        return items;
+        //        //return Mapper.Map<CategoryList>(items);
+        //    }
+        //    return null;
+        //}
+
+        public DataSet GetCustomerDetail(string customerLoginId, long shopId, int CustomerRoleId)
         {
             eCartRepository oRepo = new eCartRepository(_configuration);
-            var items = oRepo.GetUserDetail(mobileNumber,userRoleId);
+            var items = oRepo.GetCustomerDetail(customerLoginId, shopId, CustomerRoleId);
 
             if (items != null)
             {
@@ -81,11 +144,11 @@ namespace BAL.Classes
             return null;
         }
 
-       
-        public CMessage UserRegisteration(UserDetail oUser)
+
+        public CMessage CustomerRegisteration(CustomerDetail oCustomer)
         {
             eCartRepository oRepo = new eCartRepository(_configuration);
-            var oResponse = oRepo.UserRegisteration(oUser);
+            var oResponse = oRepo.CustomerRegisteration(oCustomer);
 
             if (oResponse != null)
             {
@@ -95,10 +158,10 @@ namespace BAL.Classes
             return null;
         }
 
-        public bool Validate(UserCredential oUser)
+        public bool Validate(CustomerCredential oCustomer)
         {
             eCartRepository oRepo = new eCartRepository(_configuration);
-            return oRepo.Validate(oUser);
+            return oRepo.Validate(oCustomer);
         }
     }
 }

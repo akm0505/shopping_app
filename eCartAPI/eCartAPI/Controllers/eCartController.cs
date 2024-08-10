@@ -3,6 +3,7 @@ using BAL.Classes;
 using BAL.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Net.Http;
 
 namespace eCartAPI.Controllers
@@ -20,33 +21,52 @@ namespace eCartAPI.Controllers
             _configuration = configuration;
         }
 
+        //[HttpGet]
+        //[Route("GetCategoryList/{type?}")]
+        //public IActionResult GetCategoryList(string type = "")
+        //{
+        //    var items = _eCartService.GetCategoryList(type);
+        //    if(items != null)
+        //    {
+        //        return Ok(items);
+        //    }
+        //    return BadRequest();
+
+        //}
+
         [HttpGet]
-        [Route("GetCategoryList/{type?}")]
-        public IActionResult GetCategoryList(string type = "")
+        [Route("GetCategoryList/{shopId}")]
+        public IActionResult GetCategoryList(long shopId)
         {
-            var items = _eCartService.GetCategoryList(type);
-            if(items != null)
+            var items = _eCartService.GetCategoryList(shopId);
+            if (items != null)
             {
-                return Ok(items);
+                string jsonString = string.Empty;
+                jsonString = JsonConvert.SerializeObject(items, Formatting.Indented);
+                return Ok(jsonString);
             }
             return BadRequest();
 
         }
 
         [HttpPost]
-        [Route("GetUserLoginDetail")]
-        public IActionResult GetUserLoginDetail(UserCredential oUser)
+        [Route("GetCustomerLoginDetail")]
+        public IActionResult GetCustomerLoginDetail(CustomerCredential oCustomer)
         {
-            if (oUser != null)
+            if (oCustomer != null)
             {
-                if (!String.IsNullOrEmpty(oUser.USER_PHONE) && !String.IsNullOrEmpty(oUser.USER_PASSWORD))
+                if (!String.IsNullOrEmpty(oCustomer.CUSTOMER_LOGIN_ID) && !String.IsNullOrEmpty(oCustomer.CUSTOMER_PASSWORD))
                 {
-                    if (Validate(oUser))
+                    if (Validate(oCustomer))
                     {
-                        var items = _eCartService.GetUserDetail(oUser.USER_PHONE,oUser.USER_ROLE_ID);
+                        var items = _eCartService.GetCustomerDetail(oCustomer.CUSTOMER_LOGIN_ID,oCustomer.SHOP_ID,oCustomer.CUSTOMER_ROLE_ID);
                         if (items != null)
                         {
-                            return Ok(items);
+                            string jsonString = string.Empty;
+                            jsonString = JsonConvert.SerializeObject(items, Formatting.Indented);
+                            return Ok(jsonString);
+
+                            //return Ok(items);
                         }
                         else
                         {
@@ -69,14 +89,14 @@ namespace eCartAPI.Controllers
 
 
         [HttpPost]
-        [Route("UserRegisteration")]
-        public IActionResult UserRegisteration(UserDetail oUser)
+        [Route("CustomerRegisteration")]
+        public IActionResult CustomerRegisteration(CustomerDetail oCustomer)
         {
-            if (oUser != null)
+            if (oCustomer != null)
             {
-                if (!String.IsNullOrEmpty(oUser.USER_PHONE) && !String.IsNullOrEmpty(oUser.USER_PASSWORD))
+                if (!String.IsNullOrEmpty(oCustomer.CUSTOMER_PHONE) && !String.IsNullOrEmpty(oCustomer.CUSTOMER_PASSWORD))
                 {
-                    var oResponse = _eCartService.UserRegisteration(oUser);
+                    var oResponse = _eCartService.CustomerRegisteration(oCustomer);
                     return Ok(oResponse);
                 }
                 else
@@ -89,24 +109,40 @@ namespace eCartAPI.Controllers
         }
 
 
-        private bool Validate(UserCredential oUser)
+        private bool Validate(CustomerCredential oCustomer)
         {
-            return _eCartService.Validate(oUser);
+            return _eCartService.Validate(oCustomer);
         }
 
         [HttpGet]
-        [Route("GetUserDetail/{mobileNumber}/{userRoleId}")]
-        public IActionResult GetUserDetail(string mobileNumber,int userRoleId)
+        [Route("GetCustomerDetail/{customerLoginId}/{shopId}/{CustomerRoleId}")]
+        public IActionResult GetCustomerDetail(string customerLoginId,long shopId, int CustomerRoleId)
         {
-            var items = _eCartService.GetUserDetail(mobileNumber, userRoleId);
+            var items = _eCartService.GetCustomerDetail(customerLoginId, shopId, CustomerRoleId);
             if (items != null)
             {
-                return Ok(items);
+                string jsonString = string.Empty;
+                jsonString = JsonConvert.SerializeObject(items, Formatting.Indented);
+                return Ok(jsonString);
+                //return Ok(items);
             }
             return BadRequest();
 
         }
 
+
+        //[HttpGet]
+        //[Route("GetInitialSetup/{shopId}")]
+        //public IActionResult GetInitialSetup(long shopId)
+        //{
+        //    var items = _eCartService.GetInitialSetup(shopId);
+        //    if (items != null)
+        //    {
+        //        return Ok(items);
+        //    }
+        //    return BadRequest();
+
+        //}
 
         [HttpGet]
         [Route("GetInitialSetup/{shopId}")]
@@ -115,11 +151,27 @@ namespace eCartAPI.Controllers
             var items = _eCartService.GetInitialSetup(shopId);
             if (items != null)
             {
-                return Ok(items);
+                string jsonString = string.Empty;
+                jsonString = JsonConvert.SerializeObject(items, Formatting.Indented);
+                return Ok(jsonString);
             }
             return BadRequest();
 
         }
+
+
+        //[HttpGet]
+        //[Route("GetProductList/{categoryId}")]
+        //public IActionResult GetProductList(long categoryId)
+        //{
+        //    var items = _eCartService.GetProductList(categoryId);
+        //    if (items != null)
+        //    {
+        //        return Ok(items);
+        //    }
+        //    return BadRequest();
+
+        //}
 
         [HttpGet]
         [Route("GetProductList/{categoryId}")]
@@ -128,11 +180,14 @@ namespace eCartAPI.Controllers
             var items = _eCartService.GetProductList(categoryId);
             if (items != null)
             {
-                return Ok(items);
+                string jsonString = string.Empty;
+                jsonString = JsonConvert.SerializeObject(items, Formatting.Indented);
+                return Ok(jsonString);
             }
             return BadRequest();
 
         }
+
 
         [HttpGet]
         [Route("GetProductDetail/{productId}/{customerId}")]
@@ -141,7 +196,13 @@ namespace eCartAPI.Controllers
             var items = _eCartService.GetProductDetail(productId, customerId);
             if (items != null)
             {
-                return Ok(items);
+                string jsonString = string.Empty;
+
+                if (items.Tables[0].Rows.Count  > 0)
+                {
+                    jsonString = JsonConvert.SerializeObject(items, Formatting.Indented);
+                }
+                return Ok(jsonString);
             }
             return BadRequest();
 

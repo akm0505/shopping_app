@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ namespace DAL.Repositories
     public class eCartRepository
     {
         private readonly IConfiguration _configuration;
+       
         public eCartRepository(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -23,16 +25,57 @@ namespace DAL.Repositories
         {
             return _configuration.GetConnectionString("ProdConnectionString");
         }
-        
 
-       
-        public CategoryList GetCategoryList(string type = "")
+
+
+        //public CategoryList GetCategoryList(string type = "")
+        //{
+        //    var cList = new CategoryList();
+        //    SqlDataReader reader ;
+        //    SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
+        //    List<CategoryDetail> cDetail = new List<CategoryDetail>();
+
+        //    try
+        //    {
+        //        using (sqlConnection)
+        //        {
+        //            string strCommandText = "ECART_CategoryDetails_GET";
+
+        //            using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
+        //            {
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                cmd.Parameters.AddWithValue("@type", type);
+        //                sqlConnection.Open();
+
+        //                using (reader = cmd.ExecuteReader())
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        CategoryDetail cItem = new CategoryDetail();
+        //                        cItem.CATEGORY_ID = Convert.ToInt64(reader["CATEGORY_ID"]);
+        //                        cItem.CATEGORY_NAME = Convert.ToString(reader["CATEGORY_NAME"]);
+        //                        cItem.IMAGE_URL = Convert.ToString(reader["IMAGE_URL"]);
+        //                        cDetail.Add(cItem);
+        //                    }
+        //                }
+        //            }
+
+
+
+        //        }
+        //        cList.CategoryDetails = cDetail;
+        //        return cList;
+        //    }catch(Exception ex)
+        //    {
+        //        throw;
+        //    }
+
+        //}
+
+        public DataSet GetCategoryList(long shopId)
         {
-            var cList = new CategoryList();
-            SqlDataReader reader ;
             SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
-            List<CategoryDetail> cDetail = new List<CategoryDetail>();
-
+            DataSet ds = new DataSet();
             try
             {
                 using (sqlConnection)
@@ -42,73 +85,19 @@ namespace DAL.Repositories
                     using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@type", type);
+                        cmd.Parameters.AddWithValue("@SHOP_ID", shopId);
                         sqlConnection.Open();
 
-                        using (reader = cmd.ExecuteReader())
+                        using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(cmd))
                         {
-                            while (reader.Read())
-                            {
-                                CategoryDetail cItem = new CategoryDetail();
-                                cItem.CATEGORY_ID = Convert.ToInt64(reader["CATEGORY_ID"]);
-                                cItem.CATEGORY_NAME = Convert.ToString(reader["CATEGORY_NAME"]);
-                                cItem.IMAGE_URL = Convert.ToString(reader["IMAGE_URL"]);
-                                cDetail.Add(cItem);
-                            }
+                            sqlDataAdapter.Fill(ds);
                         }
                     }
 
 
 
                 }
-                cList.CategoryDetails = cDetail;
-                return cList;
-            }catch(Exception ex)
-            {
-                throw;
-            }
-
-        }
-
-
-        public UserDetail GetUserDetail(string mobileNumber, int userRoleId)
-        {
-            var cUser = new UserDetail();
-            SqlDataReader reader;
-            SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
-
-            try
-            {
-                using (sqlConnection)
-                {
-                    string strCommandText = "ECART_UserDetail_GET";
-
-                    using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@mobileNumber", mobileNumber);
-                        cmd.Parameters.AddWithValue("@userRoleId", userRoleId);
-                        sqlConnection.Open();
-
-                        using (reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                cUser.USER_NAME = Convert.ToString(reader["USER_NAME"]);
-                                cUser.USER_DISPLAY_NAME = Convert.ToString(reader["USER_DISPLAY_NAME"]);
-                                cUser.USER_ADDRESS = Convert.ToString(reader["USER_ADDRESS"]);
-                                cUser.USER_PHONE = Convert.ToString(reader["USER_PHONE"]);
-                                cUser.IS_SHOP_OWNER = Convert.ToBoolean(reader["IS_SHOP_OWNER"]);
-                                try
-                                {
-                                    cUser.SHOP_ID = Convert.ToInt64(reader["SHOP_ID"]);
-                                }
-                                catch { }
-                            }
-                        }
-                    }
-                }
-                return cUser;
+                return ds;
             }
             catch (Exception ex)
             {
@@ -117,7 +106,90 @@ namespace DAL.Repositories
 
         }
 
-        public bool Validate(UserCredential oUser)
+
+        //public CustomerDetail GetCustomerDetail(string customerLoginId , long shopId, int CustomerRoleId)
+        //{
+        //    var cCustomer = new CustomerDetail();
+        //    SqlDataReader reader;
+        //    SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
+
+        //    try
+        //    {
+        //        using (sqlConnection)
+        //        {
+        //            string strCommandText = "ECART_CustomerDetail_GET";
+
+        //            using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
+        //            {
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                cmd.Parameters.AddWithValue("@CUSTOMER_LOGIN_ID", customerLoginId);
+        //                cmd.Parameters.AddWithValue("@SHOP_ID", shopId);
+        //                cmd.Parameters.AddWithValue("@CUSTOMER_ROLE_ID", CustomerRoleId);
+        //                sqlConnection.Open();
+
+        //                using (reader = cmd.ExecuteReader())
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        cCustomer.CUSTOMER_NAME = Convert.ToString(reader["CUSTOMER_NAME"]);
+        //                        cCustomer.CUSTOMER_DISPLAY_NAME = Convert.ToString(reader["CUSTOMER_DISPLAY_NAME"]);
+        //                        cCustomer.CUSTOMER_ADDRESS = Convert.ToString(reader["CUSTOMER_ADDRESS"]);
+        //                        cCustomer.CUSTOMER_PHONE = Convert.ToString(reader["CUSTOMER_PHONE"]);
+        //                        cCustomer.IS_SHOP_OWNER = Convert.ToBoolean(reader["IS_SHOP_OWNER"]);
+        //                        try
+        //                        {
+        //                            cCustomer.SHOP_ID = Convert.ToInt64(reader["SHOP_ID"]);
+        //                        }
+        //                        catch { }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        return cCustomer;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+
+        //}
+
+
+        public DataSet GetCustomerDetail(string customerLoginId, long shopId, int CustomerRoleId)
+        {
+            SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
+            DataSet ds = new DataSet();
+
+            try
+            {
+                using (sqlConnection)
+                {
+                    string strCommandText = "ECART_CustomerDetail_GET";
+
+                    using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@CUSTOMER_LOGIN_ID", customerLoginId);
+                        cmd.Parameters.AddWithValue("@SHOP_ID", shopId);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_ROLE_ID", CustomerRoleId);
+                        sqlConnection.Open();
+
+                        using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(cmd))
+                        {
+                            sqlDataAdapter.Fill(ds);
+                        }
+                    }
+                }
+                return ds;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+
+        public bool Validate(CustomerCredential oCustomer)
         {
             SqlDataReader reader;
             SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
@@ -126,20 +198,21 @@ namespace DAL.Repositories
             {
                 using (sqlConnection)
                 {
-                    string strCommandText = "ECART_User_Validate";
+                    string strCommandText = "ECART_Customer_Validate";
 
                     using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@mobileNumber", oUser.USER_PHONE);
-                        cmd.Parameters.AddWithValue("@Password", oUser.USER_PASSWORD);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_LOGIN_ID", oCustomer.CUSTOMER_LOGIN_ID);
+                        cmd.Parameters.AddWithValue("@PASSWORD", oCustomer.CUSTOMER_PASSWORD);
+                        cmd.Parameters.AddWithValue("@SHOP_ID", oCustomer.SHOP_ID);
                         sqlConnection.Open();
 
                         using (reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                if(Convert.ToInt32(reader["IS_VALID_USER"]).Equals(1))
+                                if(Convert.ToInt32(reader["IS_VALID_CUSTOMER"]).Equals(1))
                                 {
                                     return true;
                                 }
@@ -156,7 +229,7 @@ namespace DAL.Repositories
         }
 
 
-        public CMessage UserRegisteration(UserDetail oUser)
+        public CMessage CustomerRegisteration(CustomerDetail oCustomer)
         {
             SqlDataReader reader;
             SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
@@ -166,28 +239,29 @@ namespace DAL.Repositories
             {
                 using (sqlConnection)
                 {
-                    string strCommandText = "ECART_User_Registeration";
+                    string strCommandText = "ECART_Customer_Registeration";
 
                     using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@USER_ROLE_ID", oUser.USER_ROLE_ID);
-                        cmd.Parameters.AddWithValue("@USER_NAME", oUser.USER_NAME);
-                        cmd.Parameters.AddWithValue("@USER_DISPLAY_NAME", oUser.USER_DISPLAY_NAME);
-                        cmd.Parameters.AddWithValue("@USER_EMAIL", oUser.USER_EMAIL);
-                        cmd.Parameters.AddWithValue("@USER_PHONE", oUser.USER_PHONE);
-                        cmd.Parameters.AddWithValue("@USER_PASSWORD", oUser.USER_PASSWORD);
+                        cmd.Parameters.AddWithValue("@SHOP_ID", oCustomer.SHOP_ID);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_ROLE_ID", oCustomer.CUSTOMER_ROLE_ID);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_NAME", oCustomer.CUSTOMER_NAME);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_DISPLAY_NAME", oCustomer.CUSTOMER_DISPLAY_NAME);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_EMAIL", oCustomer.CUSTOMER_EMAIL);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_PHONE", oCustomer.CUSTOMER_PHONE);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_PASSWORD", oCustomer.CUSTOMER_PASSWORD);
 
-                        cmd.Parameters.AddWithValue("@USER_PHONE2", oUser.USER_PHONE2);
-                        cmd.Parameters.AddWithValue("@USER_ADDRESS", oUser.USER_ADDRESS);
-                        cmd.Parameters.AddWithValue("@USER_ADDRESS_1", oUser.USER_ADDRESS_1);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_PHONE2", oCustomer.CUSTOMER_PHONE2);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_ADDRESS", oCustomer.CUSTOMER_ADDRESS);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_ADDRESS_1", oCustomer.CUSTOMER_ADDRESS_1);
 
-                        cmd.Parameters.AddWithValue("@USER_CITY", oUser.USER_CITY);
-                        cmd.Parameters.AddWithValue("@USER_STATE", oUser.USER_STATE);
-                        cmd.Parameters.AddWithValue("@USER_COUNTRY", oUser.USER_COUNTRY);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_CITY", oCustomer.CUSTOMER_CITY);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_STATE", oCustomer.CUSTOMER_STATE);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_COUNTRY", oCustomer.CUSTOMER_COUNTRY);
 
-                        cmd.Parameters.AddWithValue("@USER_PINCODE", oUser.USER_PINCODE);
-                        cmd.Parameters.AddWithValue("@USER_PROFILE_PIC", oUser.USER_PROFILE_PIC);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_PINCODE", oCustomer.CUSTOMER_PINCODE);
+                        cmd.Parameters.AddWithValue("@CUSTOMER_PROFILE_PIC", oCustomer.CUSTOMER_PROFILE_PIC);
 
 
                         sqlConnection.Open();
@@ -212,12 +286,61 @@ namespace DAL.Repositories
 
 
 
-        public ShopDetail GetInitialSetup(long shopId)
-        {
-            SqlDataReader reader;
-            SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
-            ShopDetail o = new  ShopDetail();
+        //public ShopDetail GetInitialSetup(long shopId)
+        //{
+        //    SqlDataReader reader;
+        //    SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
+        //    ShopDetail o = new  ShopDetail();
 
+        //    try
+        //    {
+        //        using (sqlConnection)
+        //        {
+        //            string strCommandText = "ECART_InitialSetup_GET";
+
+        //            using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
+        //            {
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                cmd.Parameters.AddWithValue("@SHOP_ID", shopId);
+        //                sqlConnection.Open();
+
+        //                using (reader = cmd.ExecuteReader())
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        o.SHOP_ID = Convert.ToInt64(reader["SHOP_ID"]);
+        //                        o.CUSTOMER_ID = Convert.ToInt64(reader["CUSTOMER_ID"]);
+        //                        o.CUSTOMER_NAME = Convert.ToString(reader["CUSTOMER_NAME"]);
+        //                        o.CUSTOMER_DISPLAY_NAME = Convert.ToString(reader["CUSTOMER_DISPLAY_NAME"]);
+        //                        o.SHOP_NAME = Convert.ToString(reader["SHOP_NAME"]);
+        //                        o.IMAGE_URL = Convert.ToString(reader["IMAGE_URL"]);
+        //                        o.SHOP_CODE = Convert.ToString(reader["SHOP_CODE"]);
+        //                        o.SHOP_OWNER_CONTACT_NUMBER = Convert.ToString(reader["SHOP_OWNER_CONTACT_NUMBER"]);
+        //                        o.SHOP_OWNER = Convert.ToString(reader["SHOP_OWNER"]);
+        //                        o.SHOP_BRAND_IMAGE = Convert.ToString(reader["SHOP_BRAND_IMAGE"]);
+        //                        o.SHOP_CONTENT = Convert.ToString(reader["SHOP_CONTENT"]);
+        //                        o.SHOP_HEADER = Convert.ToString(reader["SHOP_HEADER"]);
+        //                        o.SHOP_FOOTER = Convert.ToString(reader["SHOP_FOOTER"]);
+        //                    }
+        //                }
+        //            }
+
+
+
+        //        }
+        //        return o;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+
+        //}
+
+        public DataSet GetInitialSetup(long shopId)
+        {
+            SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
+            DataSet ds = new DataSet();
             try
             {
                 using (sqlConnection)
@@ -229,32 +352,17 @@ namespace DAL.Repositories
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@SHOP_ID", shopId);
                         sqlConnection.Open();
-
-                        using (reader = cmd.ExecuteReader())
+                        
+                        using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(cmd))
                         {
-                            while (reader.Read())
-                            {
-                                o.SHOP_ID = Convert.ToInt64(reader["SHOP_ID"]);
-                                o.USER_ID = Convert.ToInt64(reader["USER_ID"]);
-                                o.USER_NAME = Convert.ToString(reader["USER_NAME"]);
-                                o.USER_DISPLAY_NAME = Convert.ToString(reader["USER_DISPLAY_NAME"]);
-                                o.SHOP_NAME = Convert.ToString(reader["SHOP_NAME"]);
-                                o.IMAGE_URL = Convert.ToString(reader["IMAGE_URL"]);
-                                o.SHOP_CODE = Convert.ToString(reader["SHOP_CODE"]);
-                                o.SHOP_OWNER_CONTACT_NUMBER = Convert.ToString(reader["SHOP_OWNER_CONTACT_NUMBER"]);
-                                o.SHOP_OWNER = Convert.ToString(reader["SHOP_OWNER"]);
-                                o.SHOP_BRAND_IMAGE = Convert.ToString(reader["SHOP_BRAND_IMAGE"]);
-                                o.SHOP_CONTENT = Convert.ToString(reader["SHOP_CONTENT"]);
-                                o.SHOP_HEADER = Convert.ToString(reader["SHOP_HEADER"]);
-                                o.SHOP_FOOTER = Convert.ToString(reader["SHOP_FOOTER"]);
-                            }
+                            sqlDataAdapter.Fill(ds);
                         }
                     }
 
 
 
                 }
-                return o;
+                return ds;
             }
             catch (Exception ex)
             {
@@ -264,13 +372,114 @@ namespace DAL.Repositories
         }
 
 
-        public ProductList GetProductList(long categoryId)
-        {
-            var oList = new ProductList();
-            SqlDataReader reader;
-            SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
-            List<ProductDetail> oDetail = new List<ProductDetail>();
+        //public ProductList GetProductList(long categoryId)
+        //{
+        //    var oList = new ProductList();
+        //    SqlDataReader reader;
+        //    SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
+        //    List<ProductDetail> oDetail = new List<ProductDetail>();
 
+        //    try
+        //    {
+        //        using (sqlConnection)
+        //        {
+        //            string strCommandText = "ECART_ProductList_GET";
+
+        //            using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
+        //            {
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                cmd.Parameters.AddWithValue("@CATEGORY_ID", categoryId);
+        //                sqlConnection.Open();
+
+        //                using (reader = cmd.ExecuteReader())
+        //                {
+        //                    while (reader.Read())
+        //                    {
+        //                        ProductDetail oItem = new ProductDetail();
+        //                        oItem.PRODUCT_ID = Convert.ToInt64(reader["PRODUCT_ID"]);
+        //                        oItem.PRODUCT_CODE = Convert.ToString(reader["PRODUCT_CODE"]);
+        //                        oItem.PRODUCT_NAME = Convert.ToString(reader["PRODUCT_NAME"]);
+
+        //                        oItem.PRODUCT_BRAND = Convert.ToString(reader["PRODUCT_BRAND"]);
+        //                        oItem.PRODUCT_PRICE = Convert.ToDecimal(reader["PRODUCT_PRICE"]);
+        //                        oItem.PRODUCT_DISCOUNT = Convert.ToDecimal(reader["PRODUCT_DISCOUNT"]);
+        //                        oItem.PRODUCT_DISPLAY_ORDER = Convert.ToInt32(reader["PRODUCT_DISPLAY_ORDER"]);
+
+        //                        oItem.IMAGE_URL = Convert.ToString(reader["IMAGE_URL"]);
+        //                        oDetail.Add(oItem);
+        //                    }
+        //                }
+        //            }
+
+
+
+        //        }
+        //        oList.ProductDetails = oDetail;
+        //        return oList;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+
+        //}
+
+
+        //public ProductDetail GetProductDetail(long productId, long customerId)
+        //{
+        //    SqlDataReader reader;
+        //    SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
+        //    ProductDetail oItem = new ProductDetail();
+
+        //    try
+        //    {
+        //        using (sqlConnection)
+        //        {
+        //            string strCommandText = "ECART_ProductDetail_GET";
+
+        //            using (SqlCommand cmd = new SqlCommand(strCommandText, sqlConnection))
+        //            {
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                cmd.Parameters.AddWithValue("@PRODUCT_ID", productId);
+        //                cmd.Parameters.AddWithValue("@CUSTOMER_ID", customerId);
+        //                sqlConnection.Open();
+
+        //                using (reader = cmd.ExecuteReader())
+        //                {
+        //                    while (reader.Read())
+        //                    {
+
+        //                        oItem.PRODUCT_ID = Convert.ToInt64(reader["PRODUCT_ID"]);
+        //                        oItem.PRODUCT_CODE = Convert.ToString(reader["PRODUCT_CODE"]);
+        //                        oItem.PRODUCT_NAME = Convert.ToString(reader["PRODUCT_NAME"]);
+
+        //                        oItem.PRODUCT_BRAND = Convert.ToString(reader["PRODUCT_BRAND"]);
+        //                        oItem.PRODUCT_PRICE = Convert.ToDecimal(reader["PRODUCT_PRICE"]);
+        //                        oItem.PRODUCT_DISCOUNT = Convert.ToDecimal(reader["PRODUCT_DISCOUNT"]);
+        //                        oItem.PRODUCT_DISPLAY_ORDER = Convert.ToInt32(reader["PRODUCT_DISPLAY_ORDER"]);
+
+        //                        oItem.IMAGE_URL = Convert.ToString(reader["IMAGE_URL"]);
+        //                    }
+        //                }
+        //            }
+
+
+
+        //        }
+        //        return oItem;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw;
+        //    }
+
+        //}
+
+
+        public DataSet GetProductList(long categoryId)
+        {
+            SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
+            DataSet ds = new DataSet();
             try
             {
                 using (sqlConnection)
@@ -283,31 +492,16 @@ namespace DAL.Repositories
                         cmd.Parameters.AddWithValue("@CATEGORY_ID", categoryId);
                         sqlConnection.Open();
 
-                        using (reader = cmd.ExecuteReader())
+                        using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(cmd))
                         {
-                            while (reader.Read())
-                            {
-                                ProductDetail oItem = new ProductDetail();
-                                oItem.PRODUCT_ID = Convert.ToInt64(reader["PRODUCT_ID"]);
-                                oItem.PRODUCT_CODE = Convert.ToString(reader["PRODUCT_CODE"]);
-                                oItem.PRODUCT_NAME = Convert.ToString(reader["PRODUCT_NAME"]);
-
-                                oItem.PRODUCT_BRAND = Convert.ToString(reader["PRODUCT_BRAND"]);
-                                oItem.PRODUCT_PRICE = Convert.ToDecimal(reader["PRODUCT_PRICE"]);
-                                oItem.PRODUCT_DISCOUNT = Convert.ToDecimal(reader["PRODUCT_DISCOUNT"]);
-                                oItem.PRODUCT_DISPLAY_ORDER = Convert.ToInt32(reader["PRODUCT_DISPLAY_ORDER"]);
-
-                                oItem.IMAGE_URL = Convert.ToString(reader["IMAGE_URL"]);
-                                oDetail.Add(oItem);
-                            }
+                            sqlDataAdapter.Fill(ds);
                         }
                     }
 
 
 
                 }
-                oList.ProductDetails = oDetail;
-                return oList;
+               return ds;
             }
             catch (Exception ex)
             {
@@ -316,13 +510,10 @@ namespace DAL.Repositories
 
         }
 
-
-        public ProductDetail GetProductDetail(long productId, long customerId)
+        public DataSet GetProductDetail(long productId, long customerId)
         {
-            SqlDataReader reader;
             SqlConnection sqlConnection = new SqlConnection(GetDBConnectionString());
-            ProductDetail oItem = new ProductDetail();
-
+            DataSet ds = new DataSet();
             try
             {
                 using (sqlConnection)
@@ -336,29 +527,14 @@ namespace DAL.Repositories
                         cmd.Parameters.AddWithValue("@CUSTOMER_ID", customerId);
                         sqlConnection.Open();
 
-                        using (reader = cmd.ExecuteReader())
+                        using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(cmd))
                         {
-                            while (reader.Read())
-                            {
-                               
-                                oItem.PRODUCT_ID = Convert.ToInt64(reader["PRODUCT_ID"]);
-                                oItem.PRODUCT_CODE = Convert.ToString(reader["PRODUCT_CODE"]);
-                                oItem.PRODUCT_NAME = Convert.ToString(reader["PRODUCT_NAME"]);
-
-                                oItem.PRODUCT_BRAND = Convert.ToString(reader["PRODUCT_BRAND"]);
-                                oItem.PRODUCT_PRICE = Convert.ToDecimal(reader["PRODUCT_PRICE"]);
-                                oItem.PRODUCT_DISCOUNT = Convert.ToDecimal(reader["PRODUCT_DISCOUNT"]);
-                                oItem.PRODUCT_DISPLAY_ORDER = Convert.ToInt32(reader["PRODUCT_DISPLAY_ORDER"]);
-
-                                oItem.IMAGE_URL = Convert.ToString(reader["IMAGE_URL"]);
-                            }
+                            sqlDataAdapter.Fill(ds);
                         }
                     }
 
-
-
                 }
-                return oItem;
+                return ds;
             }
             catch (Exception ex)
             {
